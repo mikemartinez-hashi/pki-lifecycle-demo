@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================
 # Vault PKI Demo — Linux/Apache Vault Agent Bootstrap
+# Target OS: Ubuntu 24.04 LTS (hc-base-ubuntu-2404)
 # Injected by Terraform templatefile()
 # ============================================================
 set -euo pipefail
@@ -23,13 +24,22 @@ VAULT_VER="1.17.2"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo "=== Vault PKI Bootstrap started at $(date) ==="
 
-# ── 1. Install Apache + dependencies ─────────────────────────
-echo ">>> Installing Apache and dependencies..."
-dnf update -y -q
-dnf install -y -q httpd mod_ssl openssl unzip
+# ── 1. Install Apache + dependencies (Ubuntu / apt) ──────────
+echo ">>> Installing Apache2 and dependencies..."
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -y -q
+apt-get install -y -q apache2 openssl unzip curl
 
-systemctl enable httpd
-systemctl start httpd
+# Enable required Apache modules
+a2enmod ssl
+a2enmod headers
+a2enmod rewrite
+
+# Disable the default HTTP site — we'll replace it
+a2dissite 000-default || true
+
+systemctl enable apache2
+systemctl start apache2
 
 # ── 2. Create demo web page ──────────────────────────────────
 cat > /var/www/html/index.html << 'HTML'
@@ -50,7 +60,7 @@ cat > /var/www/html/index.html << 'HTML'
 <body>
   <div class="card">
     <h1>🔐 Vault PKI Demo</h1>
-    <h2>Apache — Amazon Linux 2023</h2>
+    <h2>Apache — Ubuntu 24.04 LTS</h2>
     <p>Certificate issued by: <span>Vault Intermediate CA</span></p>
     <p>Provisioned automatically by <span>Vault Agent</span></p>
     <p>Renewal is <span>fully automated</span> — zero human interaction</p>
@@ -98,14 +108,15 @@ cat > "$VAULT_DIR/chain.tpl" << 'TMPL'
 {{ end }}
 TMPL
 
-# Substitute placeholder values
 sed -i "s|COMMON_NAME_PLACEHOLDER|$COMMON_NAME|g" "$VAULT_DIR/cert.tpl" "$VAULT_DIR/key.tpl" "$VAULT_DIR/chain.tpl"
 sed -i "s|CERT_TTL_PLACEHOLDER|$CERT_TTL|g"       "$VAULT_DIR/cert.tpl" "$VAULT_DIR/key.tpl" "$VAULT_DIR/chain.tpl"
 
 echo ">>> Consul Template files written."
 
-# ── 6. Write Apache SSL virtual host ─────────────────────────
-cat > /etc/httpd/conf.d/vault-ssl.conf << APACHECONF
+# ── 6. Write Apache SSL virtual host (Ubuntu paths) ──────────
+# Ubuntu: sites go in /etc/apache2/sites-available/ and are enabled with a2ensite
+
+cat > /etc/apache2/sites-available/vault-ssl.conf << APACHECONF
 # Vault PKI Demo — Apache SSL Virtual Host
 # Certificate and key are managed by Vault Agent
 
@@ -130,17 +141,21 @@ cat > /etc/httpd/conf.d/vault-ssl.conf << APACHECONF
         Require all granted
     </Directory>
 
-    ErrorLog  /var/log/httpd/ssl_error.log
-    CustomLog /var/log/httpd/ssl_access.log combined
+    ErrorLog  /var/log/apache2/ssl_error.log
+    CustomLog /var/log/apache2/ssl_access.log combined
 </VirtualHost>
 
 <VirtualHost *:80>
     ServerName $COMMON_NAME
-    Redirect permanent / https://$COMMON_NAME/
+    ServerAlias localhost
+    Redirect permanent / https://localhost/
 </VirtualHost>
 APACHECONF
 
-echo ">>> Apache SSL vhost written."
+# Enable our custom SSL site
+a2ensite vault-ssl
+
+echo ">>> Apache SSL vhost configured and enabled."
 
 # ── 7. Write Vault Agent HCL ─────────────────────────────────
 cat > "$VAULT_DIR/vault-agent.hcl" << AGENTCFG
@@ -181,7 +196,7 @@ template {
   destination = "$CERT_DIR/cert.pem"
   perms       = 0644
   exec {
-    command = ["systemctl", "reload", "httpd"]
+    command = ["systemctl", "reload", "apache2"]
     timeout = "30s"
   }
 }
@@ -233,17 +248,17 @@ echo ">>> Starting Vault Agent..."
 systemctl start vault-agent
 
 # Allow time to authenticate and render certs
-sleep 15
+sleep 20
 
-# ── 10. Verify cert and reload Apache ────────────────────────
+# ── 10. Reload Apache once cert is in place ──────────────────
 if [ -f "$CERT_DIR/cert.pem" ]; then
     echo ">>> Certificate rendered successfully:"
     openssl x509 -in "$CERT_DIR/cert.pem" -noout -subject -issuer -dates
-    systemctl reload httpd
+    systemctl reload apache2
     echo ">>> Apache reloaded with Vault-issued certificate."
 else
     echo ">>> WARNING: cert.pem not yet rendered — agent may still be initializing."
-    echo ">>> Run: journalctl -u vault-agent -f"
+    echo ">>> Run: sudo journalctl -u vault-agent -f"
 fi
 
 echo "=== Bootstrap complete at $(date) ==="
