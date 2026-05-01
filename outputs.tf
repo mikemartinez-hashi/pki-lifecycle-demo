@@ -31,13 +31,11 @@ output "apache_server_instance_id" {
 output "iis_approle_role_id" {
   description = "AppRole Role ID for IIS Vault Agent (echoed back from workspace variable)"
   value       = var.iis_role_id
-  sensitive = true
 }
 
 output "apache_approle_role_id" {
   description = "AppRole Role ID for Apache Vault Agent (echoed back from workspace variable)"
   value       = var.apache_role_id
-  sensitive = true
 }
 
 output "demo_urls" {
