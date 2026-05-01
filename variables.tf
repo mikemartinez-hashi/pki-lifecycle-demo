@@ -6,8 +6,8 @@ variable "TFC_VAULT_ADDR" {
 
 variable "TFC_VAULT_RUN_ROLE" {
   type        = string
-  description = "Vault admin token — set as a SENSITIVE Terraform Variable in the HCP TF workspace"
-  sensitive   = true
+  description = "Vault Run Role"
+  # sensitive   = true
 }
 
 variable "TFC_VAULT_NAMESPACE" {

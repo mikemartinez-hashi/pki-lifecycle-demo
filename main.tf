@@ -33,9 +33,8 @@ provider "aws" {
 }
 
 provider "vault" {
-  address   = var.TFC_VAULT_ADDR
-  token     = var.TFC_VAULT_RUN_ROLE
-  namespace = var.TFC_VAULT_NAMESPACE
+  # address   = var.TFC_VAULT_ADDR
+  # namespace = var.TFC_VAULT_NAMESPACE
 }
 
 # ─── AMIs ─────────────────────────────────────────────────────────────────────
