@@ -220,7 +220,7 @@ resource "aws_instance" "iis_server" {
 # ─── EC2: Linux / Apache ──────────────────────────────────────────────────────
 
 resource "aws_instance" "apache_server" {
-  ami           = data.aws_ami.hc_base_ubuntu[amd64].id
+  ami           = data.aws_ami.hc_base_ubuntu.0.id
   instance_type = var.instance_type_linux
   key_name      = var.key_name
 
