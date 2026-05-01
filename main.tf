@@ -54,17 +54,19 @@ data "aws_ami" "hc_base_windows" {
   owners      = ["888995627335"] # ami-prod account
 }
 
-data "aws_ami" "amazon_linux" {
+# Get AMI ID
+data "aws_ami" "hc-base-ubuntu" {
+  for_each = toset(["amd64", "arm64"])
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = [format("hc-base-ubuntu-2404-%s-*", each.value)]
   }
   filter {
     name   = "state"
     values = ["available"]
   }
   most_recent = true
-  owners      = ["amazon"]
+  owners      = ["888995627335"] # ami-prod account
 }
 
 # ─── Security Groups ──────────────────────────────────────────────────────────
@@ -219,7 +221,7 @@ resource "aws_instance" "iis_server" {
 # ─── EC2: Linux / Apache ──────────────────────────────────────────────────────
 
 resource "aws_instance" "apache_server" {
-  ami           = data.aws_ami.amazon_linux.id
+  ami           = data.aws_ami.hc_base_ubuntu["amd64"].id
   instance_type = var.instance_type_linux
   key_name      = var.key_name
 

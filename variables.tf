@@ -13,7 +13,7 @@ variable "vault_token" {
 variable "vault_namespace" {
   type        = string
   description = "Vault namespace (HCP Vault uses 'admin' by default)"
-  default     = "admin"
+  # default     = "admin"
 }
 
 variable "region" {
