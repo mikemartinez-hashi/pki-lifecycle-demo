@@ -33,9 +33,9 @@ provider "aws" {
 }
 
 provider "vault" {
-  address   = var.vault_addr
-  token     = var.vault_token
-  namespace = var.vault_namespace
+  address   = var.TFC_VAULT_ADDR
+  token     = var.TFC_VAULT_RUN_ROLE
+  namespace = var.TFC_VAULT_NAMESPACE
 }
 
 # ─── AMIs ─────────────────────────────────────────────────────────────────────
@@ -202,8 +202,8 @@ resource "aws_instance" "iis_server" {
   ]
 
   user_data = templatefile("${path.module}/templates/windows_userdata.ps1.tpl", {
-    vault_addr      = var.vault_addr
-    vault_namespace = var.vault_namespace
+    vault_addr      = var.TFC_VAULT_ADDR
+    vault_namespace = var.TFC_VAULT_NAMESPACE
     role_id         = vault_approle_auth_backend_role.iis.role_id
     secret_id       = vault_approle_auth_backend_role_secret_id.iis_secret_id.secret_id
     common_name     = var.cert_domain_windows
@@ -234,8 +234,8 @@ resource "aws_instance" "apache_server" {
   ]
 
   user_data = templatefile("${path.module}/templates/linux_userdata.sh.tpl", {
-    vault_addr      = var.vault_addr
-    vault_namespace = var.vault_namespace
+    vault_addr      = var.TFC_VAULT_ADDR
+    vault_namespace = var.TFC_VAULT_NAMESPACE
     role_id         = vault_approle_auth_backend_role.apache.role_id
     secret_id       = vault_approle_auth_backend_role_secret_id.apache_secret_id.secret_id
     common_name     = var.cert_domain_linux

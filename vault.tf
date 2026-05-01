@@ -32,8 +32,8 @@ resource "vault_pki_secret_backend_root_cert" "root_ca" {
 
 resource "vault_pki_secret_backend_config_urls" "root_urls" {
   backend                 = vault_mount.pki_root.path
-  issuing_certificates    = ["${var.vault_addr}/v1/pki/ca"]
-  crl_distribution_points = ["${var.vault_addr}/v1/pki/crl"]
+  issuing_certificates    = ["${var.TFC_VAULT_ADDR}/v1/pki/ca"]
+  crl_distribution_points = ["${var.TFC_VAULT_ADDR}/v1/pki/crl"]
 }
 
 # ─── PKI Intermediate CA ──────────────────────────────────────────────────────
@@ -72,8 +72,8 @@ resource "vault_pki_secret_backend_intermediate_set_signed" "int_import" {
 
 resource "vault_pki_secret_backend_config_urls" "int_urls" {
   backend                 = vault_mount.pki_int.path
-  issuing_certificates    = ["${var.vault_addr}/v1/pki_int/ca"]
-  crl_distribution_points = ["${var.vault_addr}/v1/pki_int/crl"]
+  issuing_certificates    = ["${var.TFC_VAULT_ADDR}/v1/pki_int/ca"]
+  crl_distribution_points = ["${var.TFC_VAULT_ADDR}/v1/pki_int/crl"]
 
   depends_on = [vault_pki_secret_backend_intermediate_set_signed.int_import]
 }

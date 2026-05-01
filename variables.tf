@@ -1,19 +1,19 @@
-variable "vault_addr" {
+variable "TFC_VAULT_ADDR" {
   type        = string
   description = "HCP Vault cluster public URL"
-  # default     = "https://vault-demo-cluster-public-vault-b71960ee.491753e4.z1.hashicorp.cloud:8200"
+  default     = "https://vault-demo-cluster-public-vault-b71960ee.491753e4.z1.hashicorp.cloud:8200"
 }
 
-variable "vault_token" {
+variable "TFC_VAULT_RUN_ROLE" {
   type        = string
   description = "Vault admin token — set as a SENSITIVE Terraform Variable in the HCP TF workspace"
   sensitive   = true
 }
 
-variable "vault_namespace" {
+variable "TFC_VAULT_NAMESPACE" {
   type        = string
   description = "Vault namespace (HCP Vault uses 'admin' by default)"
-  # default     = "admin"
+  default     = "admin"
 }
 
 variable "region" {

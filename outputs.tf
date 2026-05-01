@@ -55,6 +55,6 @@ output "demo_urls" {
   value = {
     iis_https    = "https://${aws_instance.iis_server.public_ip}"
     apache_https = "https://${aws_instance.apache_server.public_ip}"
-    vault_ui     = "${var.vault_addr}/ui"
+    vault_ui     = "${var.TFC_VAULT_ADDR}/ui"
   }
 }
