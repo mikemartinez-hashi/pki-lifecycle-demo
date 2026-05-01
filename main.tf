@@ -17,10 +17,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
-    vault = {
-      source  = "hashicorp/vault"
-      version = "~> 4.0"
-    }
   }
 }
 
@@ -32,10 +28,6 @@ provider "aws" {
   # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY (and optionally AWS_SESSION_TOKEN)
 }
 
-provider "vault" {
-  # address   = var.TFC_VAULT_ADDR
-  # namespace = var.TFC_VAULT_NAMESPACE
-}
 
 # ─── AMIs ─────────────────────────────────────────────────────────────────────
 
@@ -53,8 +45,8 @@ data "aws_ami" "hc_base_windows" {
   owners      = ["888995627335"] # ami-prod account
 }
 
-# Get AMI ID
-data "aws_ami" "hc-base-ubuntu-2404" {
+# Ubuntu 24.04 LTS — internal AMI (amd64 and arm64)
+data "aws_ami" "hc_base_ubuntu_2404" {
   for_each = toset(["amd64", "arm64"])
   filter {
     name   = "name"
@@ -194,17 +186,11 @@ resource "aws_instance" "iis_server" {
   security_groups      = [aws_security_group.pki_demo_windows.name]
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
-  # Ensure Vault PKI + AppRole are fully configured before the instance boots
-  depends_on = [
-    vault_pki_secret_backend_role.iis_role,
-    vault_approle_auth_backend_role_secret_id.iis_secret_id,
-  ]
-
   user_data = templatefile("${path.module}/templates/windows_userdata.ps1.tpl", {
     vault_addr      = var.TFC_VAULT_ADDR
     vault_namespace = var.TFC_VAULT_NAMESPACE
-    role_id         = vault_approle_auth_backend_role.iis.role_id
-    secret_id       = vault_approle_auth_backend_role_secret_id.iis_secret_id.secret_id
+    role_id         = var.iis_role_id
+    secret_id       = var.iis_secret_id
     common_name     = var.cert_domain_windows
     cert_ttl        = var.cert_ttl
   })
@@ -220,23 +206,18 @@ resource "aws_instance" "iis_server" {
 # ─── EC2: Linux / Apache ──────────────────────────────────────────────────────
 
 resource "aws_instance" "apache_server" {
-  ami           = data.aws_ami.hc-base-ubuntu-2404["amd64"].id
+  ami           = data.aws_ami.hc_base_ubuntu_2404["amd64"].id
   instance_type = var.instance_type_linux
   key_name      = var.key_name
 
   security_groups      = [aws_security_group.pki_demo_linux.name]
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
-  depends_on = [
-    vault_pki_secret_backend_role.apache_role,
-    vault_approle_auth_backend_role_secret_id.apache_secret_id,
-  ]
-
   user_data = templatefile("${path.module}/templates/linux_userdata.sh.tpl", {
     vault_addr      = var.TFC_VAULT_ADDR
     vault_namespace = var.TFC_VAULT_NAMESPACE
-    role_id         = vault_approle_auth_backend_role.apache.role_id
-    secret_id       = vault_approle_auth_backend_role_secret_id.apache_secret_id.secret_id
+    role_id         = var.apache_role_id
+    secret_id       = var.apache_secret_id
     common_name     = var.cert_domain_linux
     cert_ttl        = var.cert_ttl
   })

@@ -28,26 +28,14 @@ output "apache_server_instance_id" {
   value       = aws_instance.apache_server.id
 }
 
-output "vault_pki_root_ca_cert" {
-  description = "Root CA certificate PEM — import into browser trust store to avoid TLS warnings during demo"
-  value       = vault_pki_secret_backend_root_cert.root_ca.certificate
-  sensitive   = false
-}
-
-output "vault_pki_int_ca_cert" {
-  description = "Intermediate CA certificate PEM"
-  value       = vault_pki_secret_backend_root_sign_intermediate.int_signed.certificate
-  sensitive   = false
-}
-
 output "iis_approle_role_id" {
-  description = "AppRole Role ID for IIS Vault Agent"
-  value       = vault_approle_auth_backend_role.iis.role_id
+  description = "AppRole Role ID for IIS Vault Agent (echoed back from workspace variable)"
+  value       = var.iis_role_id
 }
 
 output "apache_approle_role_id" {
-  description = "AppRole Role ID for Apache Vault Agent"
-  value       = vault_approle_auth_backend_role.apache.role_id
+  description = "AppRole Role ID for Apache Vault Agent (echoed back from workspace variable)"
+  value       = var.apache_role_id
 }
 
 output "demo_urls" {

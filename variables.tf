@@ -81,3 +81,29 @@ variable "cert_domain_linux" {
   description = "Common name for the Apache server certificate"
   default     = "apache.demo.internal"
 }
+
+# ─── AppRole credentials (output by scripts/setup-vault-pki.sh) ───────────────
+# Run the script first, then set these as Terraform Variables in HCP TF workspace.
+# Mark iis_secret_id and apache_secret_id as SENSITIVE.
+
+variable "iis_role_id" {
+  type        = string
+  description = "AppRole Role ID for the IIS Vault Agent (output by setup-vault-pki.sh)"
+}
+
+variable "iis_secret_id" {
+  type        = string
+  description = "AppRole Secret ID for the IIS Vault Agent (output by setup-vault-pki.sh)"
+  sensitive   = true
+}
+
+variable "apache_role_id" {
+  type        = string
+  description = "AppRole Role ID for the Apache Vault Agent (output by setup-vault-pki.sh)"
+}
+
+variable "apache_secret_id" {
+  type        = string
+  description = "AppRole Secret ID for the Apache Vault Agent (output by setup-vault-pki.sh)"
+  sensitive   = true
+}
