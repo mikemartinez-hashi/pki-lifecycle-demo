@@ -4,11 +4,11 @@ variable "TFC_VAULT_ADDR" {
   default     = "https://vault-demo-cluster-public-vault-b71960ee.491753e4.z1.hashicorp.cloud:8200"
 }
 
-variable "TFC_VAULT_RUN_ROLE" {
-  type        = string
-  description = "Vault Run Role"
-  # sensitive   = true
-}
+# variable "TFC_VAULT_RUN_ROLE" {
+#   type        = string
+#   description = "Vault Run Role"
+#   # sensitive   = true
+# }
 
 variable "TFC_VAULT_NAMESPACE" {
   type        = string
