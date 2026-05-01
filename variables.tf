@@ -66,8 +66,8 @@ variable "pki_int_cn" {
 
 variable "cert_ttl" {
   type        = string
-  description = "Default TTL for issued certificates (e.g. 720h = 30 days)"
-  default     = "720h"
+  description = "TTL for issued certificates — 2m for demo rotation visibility, 720h for production"
+  default     = "2m"
 }
 
 variable "cert_domain_windows" {

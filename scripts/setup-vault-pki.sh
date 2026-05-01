@@ -150,7 +150,7 @@ vault write "${PKI_INT_PATH}/roles/iis-role" \
     key_usage="DigitalSignature,KeyEncipherment" \
     ext_key_usage="ServerAuth" \
     require_cn=true \
-    ttl="720h" \
+    ttl="2m" \
     max_ttl="8760h"
 success "IIS role created."
 
@@ -164,7 +164,7 @@ vault write "${PKI_INT_PATH}/roles/apache-role" \
     key_usage="DigitalSignature,KeyEncipherment" \
     ext_key_usage="ServerAuth" \
     require_cn=true \
-    ttl="720h" \
+    ttl="2m" \
     max_ttl="8760h"
 success "Apache role created."
 
