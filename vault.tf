@@ -118,12 +118,12 @@ resource "vault_pki_secret_backend_role" "apache_role" {
 
 resource "vault_policy" "pki_iis" {
   name   = "pki-iis-policy"
-  policy = file("/configs/pki-policy-iis.hcl")
+  policy = file("${path.module}/configs/pki-policy-iis.hcl")
 }
 
 resource "vault_policy" "pki_apache" {
   name   = "pki-apache-policy"
-  policy = file("/configs/pki-policy-apache.hcl")
+  policy = file("${path.module}/configs/pki-policy-apache.hcl")
 }
 
 # ─── AppRole Auth Method ──────────────────────────────────────────────────────

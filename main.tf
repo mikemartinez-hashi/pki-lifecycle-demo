@@ -200,7 +200,7 @@ resource "aws_instance" "iis_server" {
     vault_approle_auth_backend_role_secret_id.iis_secret_id,
   ]
 
-  user_data = templatefile("/templates/windows_userdata.ps1.tpl", {
+  user_data = templatefile("${path.module}/templates/windows_userdata.ps1.tpl", {
     vault_addr      = var.TFC_VAULT_ADDR
     vault_namespace = var.TFC_VAULT_NAMESPACE
     role_id         = vault_approle_auth_backend_role.iis.role_id
@@ -232,7 +232,7 @@ resource "aws_instance" "apache_server" {
     vault_approle_auth_backend_role_secret_id.apache_secret_id,
   ]
 
-  user_data = templatefile("/templates/linux_userdata.sh.tpl", {
+  user_data = templatefile("${path.module}/templates/linux_userdata.sh.tpl", {
     vault_addr      = var.TFC_VAULT_ADDR
     vault_namespace = var.TFC_VAULT_NAMESPACE
     role_id         = vault_approle_auth_backend_role.apache.role_id
