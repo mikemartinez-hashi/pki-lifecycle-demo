@@ -1,0 +1,18 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+terraform.tfvars
+
+# Vault secrets — never commit these
+**/role_id
+**/secret_id
+**/vault-token
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+*.swp
