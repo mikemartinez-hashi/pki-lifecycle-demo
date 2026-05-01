@@ -104,7 +104,8 @@ TMPL
 
 cat > "$VAULT_DIR/chain.tpl" << 'TMPL'
 {{ with secret "pki_int/issue/apache-role" "common_name=COMMON_NAME_PLACEHOLDER" "ttl=CERT_TTL_PLACEHOLDER" "alt_names=localhost" }}
-{{ .Data.issuing_ca }}
+{{ range .Data.ca_chain }}{{ . }}
+{{ end }}
 {{ end }}
 TMPL
 

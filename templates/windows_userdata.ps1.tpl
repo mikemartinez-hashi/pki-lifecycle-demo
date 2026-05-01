@@ -96,13 +96,15 @@ Log "AppRole credentials written."
 '@ -replace "COMMON_NAME_PLACEHOLDER", $COMMON_NAME `
    -replace "CERT_TTL_PLACEHOLDER",    $CERT_TTL | Out-File $KEY_TMPL -Encoding ascii
 
-# chain.tpl
+# chain.tpl — full CA chain (intermediate + root) using ca_chain
 @'
 {{ with secret "pki_int/issue/iis-role" "common_name=COMMON_NAME_PLACEHOLDER" "ttl=CERT_TTL_PLACEHOLDER" "alt_names=localhost" }}
-{{ .Data.issuing_ca }}
+{{ range .Data.ca_chain }}{{ . }}
+{{ end }}
 {{ end }}
 '@ -replace "COMMON_NAME_PLACEHOLDER", $COMMON_NAME `
    -replace "CERT_TTL_PLACEHOLDER",    $CERT_TTL | Out-File $CHAIN_TMPL -Encoding ascii
+
 
 Log "Consul Template files written."
 
