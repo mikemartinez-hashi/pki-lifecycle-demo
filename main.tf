@@ -54,7 +54,7 @@ data "aws_ami" "hc_base_windows" {
 }
 
 # Get AMI ID
-data "aws_ami" "hc-base-ubuntu" {
+data "aws_ami" "hc-base-ubuntu-2404" {
   for_each = toset(["amd64", "arm64"])
   filter {
     name   = "name"
@@ -220,7 +220,7 @@ resource "aws_instance" "iis_server" {
 # ─── EC2: Linux / Apache ──────────────────────────────────────────────────────
 
 resource "aws_instance" "apache_server" {
-  ami           = data.aws_ami.hc_base_ubuntu.0.id
+  ami           = data.aws_ami.hc-base-ubuntu-2404["amd64"].id
   instance_type = var.instance_type_linux
   key_name      = var.key_name
 
